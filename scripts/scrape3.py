@@ -22,13 +22,13 @@ property_metadata = defaultdict(dict)
 i = 0
 
 # for each url, scrape some basic metadata
-for property_url in url_links[1:30]:
+for property_url in url_links[1:]:
 
     i += 1
 
     # bs_object = BeautifulSoup(urlopen(property_url), "lxml")    
     print(f"\n    Scraping {property_url}")
-    
+
     try:
         bs_object = BeautifulSoup(requests.get(
         property_url, headers=headers).text, "html.parser")
@@ -87,5 +87,5 @@ for property_url in url_links[1:30]:
 print("Stage Two Finishes")
 
 # output to example json in data/raw/
-with open('../data/raw/example.json', 'w') as f:
+with open('../data/raw/property_raw.json', 'w') as f:
     dump(property_metadata, f)
