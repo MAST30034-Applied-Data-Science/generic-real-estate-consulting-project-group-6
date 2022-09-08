@@ -1,6 +1,3 @@
-
-
-
 import pandas as pd
 
 vic_income = pd.read_excel("/root/generic-real-estate-consulting-project-group-6/data/raw/external_data/income_SA2.xls", sheet_name="Table 1.4", skiprows=lambda x : x not in [6] + list(range(586, 1048)))
@@ -15,7 +12,10 @@ for i in range(0, 3):
     popu_pred = popu_pred.set_index("stat")
     popu_pred = popu_pred.drop(["unit","2017(a)"], axis=1)
     popu_pred = popu_pred.transpose()
+
     popu_pred.to_csv(f"/root/generic-real-estate-consulting-project-group-6/data/raw/external_data/population_pred_{sheet_names[i]}.csv")
+
+    popu_pred.to_csv(f"/root/generic-real-estate-consulting-project-group-6/data/raw/external_data/population_pred_{path_names[i]}.csv")
 
 sa_popu = pd.read_excel("/root/generic-real-estate-consulting-project-group-6/data/raw/external_data/population.xlsx", sheet_name="Table 2", skiprows=lambda x : x not in [7] + list(range(9, 471)))
 sa_popu = sa_popu.rename(columns={'no.': "ERP 2020", 'no..1' : "ERP 2021", 
