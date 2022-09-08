@@ -13,7 +13,7 @@ from zipfile import ZipFile
 
 
 # directory to store data
-output_relative_dir = '../data/raw/'
+output_relative_dir = '/root/generic-real-estate-consulting-project-group-6/data/raw/'
 
 # check if it exists as it makedir will raise an error if it does exist
 if not os.path.exists(output_relative_dir):
