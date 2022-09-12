@@ -47,9 +47,9 @@ SA_shape_zip_dir = f"{output_relative_dir}/external_data/SA2_shape/SA2_2021_AUST
 urllib.request.urlretrieve("https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs-edition-3/jul2021-jun2026/access-and-downloads/digital-boundary-files/SA2_2021_AUST_SHP_GDA2020.zip", SA_shape_zip_dir)
 print("SA2_2021_AUST_SHP_GDA2020.zip finished")
 # Unzip SA2_2021_AUST_SHP_GDA2020.zip
-TAXI_ZONE_UNZIP_DIR = f"{output_relative_dir}/external_data/SA2_shape"
+SA_UNZIP_DIR = f"{output_relative_dir}/external_data/SA2_shape"
 with ZipFile(SA_shape_zip_dir, 'r') as zipObj:
-    zipObj.extractall(TAXI_ZONE_UNZIP_DIR)
+    zipObj.extractall(SA_UNZIP_DIR)
 
 # Download population data from
 # https://www.abs.gov.au/statistics/people/population/regional-population/2020-21/32180DS0001_2020-21.xlsx
