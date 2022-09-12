@@ -2,8 +2,9 @@
 # 1. austrialia post code datset
 # 2. SA2 shape file
 # 3. Population estimation by SA2
-# 4. Income by SA2
+# 4. Income by SA2 12-19
 # 5. Population prediction by states
+# 6. Income by SA2 2020
 
 import shutil
 from urllib.request import urlretrieve
@@ -13,7 +14,7 @@ from zipfile import ZipFile
 
 
 # directory to store data
-output_relative_dir = '/root/generic-real-estate-consulting-project-group-6/data/raw/'
+output_relative_dir = '../data/raw/'
 
 # check if it exists as it makedir will raise an error if it does exist
 if not os.path.exists(output_relative_dir):
@@ -68,7 +69,9 @@ population_pred_dir = f"{output_relative_dir}/external_data/population_pred.xls"
 urllib.request.urlretrieve("https://www.abs.gov.au/statistics/people/population/population-projections-australia/2017-base-2066/32220ds01_2017-2066_summary_statistics.xls", population_pred_dir)
 print("population_pred.xls finished")
 
-
-
-
+# Download latest income from
+# https://www.abs.gov.au/statistics/labour/earnings-and-working-conditions/personal-income-australia/2014-15-2018-19/6524055002_DO001.xlsx
+income_2020_dir = f"{output_relative_dir}/external_data/income_SA2_2019.xlsx"
+urllib.request.urlretrieve("https://www.abs.gov.au/statistics/labour/earnings-and-working-conditions/personal-income-australia/2014-15-2018-19/6524055002_DO001.xlsx", income_2020_dir)
+print("income_SA2_2019.xlsx finished")
 
