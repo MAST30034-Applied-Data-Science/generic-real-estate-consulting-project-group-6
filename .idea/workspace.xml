@@ -3,8 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="81639026-8d69-4a6f-9774-510adc44bbcf" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/Population_Projections.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/Population_Projections.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/population_for_suburb.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/population_for_suburb.ipynb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,7 +48,8 @@
       <workItem from="1664376909774" duration="663000" />
       <workItem from="1664416996094" duration="8319000" />
       <workItem from="1664804011547" duration="40000" />
-      <workItem from="1664804052819" duration="2368000" />
+      <workItem from="1664804052819" duration="5182000" />
+      <workItem from="1664893952266" duration="4183000" />
     </task>
     <servers />
   </component>
