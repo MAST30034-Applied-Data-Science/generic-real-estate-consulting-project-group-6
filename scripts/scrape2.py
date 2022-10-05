@@ -1,3 +1,15 @@
+"""
+Scrape property features form the URLs in property_url.csv
+Features:
+    Address
+    Locations (geographical coordinates)
+    Rooms
+    Property Type
+
+"""
+
+
+import sys
 import pandas as pd
 import re
 from json import dump
@@ -9,67 +21,82 @@ from bs4 import BeautifulSoup
 from urllib.request import urlopen
 import requests
 
-post_codes = pd.read_csv("../data/raw/external_data/australian_postcodes.csv")
-post_codes = post_codes.loc[post_codes["state"] == "VIC"]
-post_codes = post_codes["postcode"]
-post_codes = post_codes.drop_duplicates()
-
 BASE_URL = "https://www.domain.com.au"
-PAGE_SIZE = 20
-headers = {"User-Agent": "Mozilla/5.0 (X11; CrOS x86_64 12871.102.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.141 Safari/537.36"
-}
+headers = {"User-Agent": "Mozilla/5.0 (X11; CrOS x86_64 12871.102.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.141 Safari/537.36"}
+
+url_links_pd = pd.read_csv("../data/raw/property_url.csv")
+url_links_series = url_links_pd["0"]
+url_links = url_links_series.tolist()
 
 # begin code
-url_links = []
+property_metadata = defaultdict(dict)
+i = 0
 
-for post_code in post_codes:
-    url = BASE_URL + f"/rent/?postcode={post_code}&page=1"
-    bs_object = BeautifulSoup(requests.get(
-    url, headers=headers).text, "html.parser")
+# for each url, scrape some basic metadata
+for property_url in url_links[1:]:
 
-    print(f"\n\npost_code {post_code}")
-    if not bs_object:
-        print(f"post_code {post_code} is not found")
+    i += 1
+
+    # bs_object = BeautifulSoup(urlopen(property_url), "lxml")    
+    print(f"\n    Scraping {property_url}")
+
+    try:
+        bs_object = BeautifulSoup(requests.get(
+        property_url, headers=headers).text, "html.parser")
+        print(f"    The {i}th property")
+
+        # looks for the header class to get property name
+        property_metadata[property_url]['name'] = bs_object.find("h1", {"class": "css-164r41r"}).text
+        print(f"    property name : {property_metadata[property_url]['name']}")
+
+        # looks for the div containing a summary title for cost
+        property_metadata[property_url]['cost_text'] = bs_object.find("div", 
+                                                      {"data-testid": 
+                                                        "listing-details__summary-title"}).text
+        print(f"    property cost : {property_metadata[property_url]['cost_text']}")
+
+        # extract coordinates from the hyperlink provided
+        # i'll let you figure out what this does :P
+        property_metadata[property_url]['coordinates'] = [
+            float(coord) for coord in re.findall(
+                r'destination=([-\s,\d\.]+)', # use regex101.com here if you need to
+                bs_object.find(
+                        "a",
+                        {"target": "_blank", 'rel': "noopener noreferer"}
+                      ).attrs['href']
+            )[0].split(',')
+        ]
+        
+        #find rooms of the property
+        property_metadata[property_url]['rooms'] = []
+        for feature in bs_object.find("div", {"data-testid": "property-features"}) \
+                      .findAll("span", {"data-testid": "property-features-text-container"}):
+            regexopt = re.findall(r'\d\s[A-Za-z]+', feature.text)
+            if len(regexopt) != 0:
+                property_metadata[property_url]['rooms'].append(regexopt[0])
+        print(f"    Property rooms : {property_metadata[property_url]['rooms']}")
+
+        #find property description
+        # property_metadata[property_url]['desc'] = re \
+        #     .sub(r'<br>', '\n', str(bs_object.find("p"))) \
+        #     .strip('</p>')
+        # print(property_metadata[property_url]['desc'])
+
+        #find property type Apartment? House?
+        property_metadata[property_url]['type'] = bs_object.find("div", 
+                                                  {"data-testid": 
+                                                    "listing-summary-property-type"}) \
+                                                      .find("span").text
+        print(f"    Property type : {property_metadata[property_url]['type']}")
+    except KeyboardInterrupt:
+        sys.exit()
+    except :
+        print(property_url + '  Error, Skip')
         continue
-
-    summary = bs_object.find("h1", {"data-testid": "summary"}).findAll("strong")
-
-    num_prop = int(re.findall(r'\d+\s', summary[0].text)[0])
-
-    max_pages = int(num_prop / PAGE_SIZE) + (num_prop % PAGE_SIZE > 0)
-    print(f"    {max_pages} pages")
     
-    n_pages = range(1, max_pages + 1)
-    
-    if max_pages != 0:
-        print("    Start Scraping")
-        for page in n_pages:
-            url = BASE_URL + f"/rent/?postcode={post_code}&page={page}"
 
-            bs_object = BeautifulSoup(requests.get(
-            url, headers=headers).text, "html.parser")
+print("Stage Two Finishes")
 
-            # find the unordered list (ul) elements which are the results, then
-            # find all href (a) tags that are from the base_url website.            
-            index_links = bs_object \
-                .find(
-                    "ul",
-                    {"data-testid": "results"}
-                ) \
-                .findAll(
-                    "a",
-                    href=re.compile(f"{BASE_URL}/*") # the `*` denotes wildcard any
-                )
-            
-            # print(f"\nThis is the index link: {index_links}\n")
-
-            for link in index_links:
-                # if its a property address, add it to the list
-                if 'address' in link['class']:
-                    url_links.append(link['href'])
-                    # print(f"            add link {link['href']}")
-        print(f"      Postcode : {post_code} Finishes, currently have {len(url_links)} links for property") 
-
-url_series = pd.Series(url_links)
-url_series = url_series.drop_duplicates()
-url_series.to_csv("../data/raw/property_url.csv")
+# output to example json in data/raw/
+with open('../data/raw/property_raw.json', 'w') as f:
+    dump(property_metadata, f)
