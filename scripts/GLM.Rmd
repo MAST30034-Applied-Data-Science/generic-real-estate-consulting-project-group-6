@@ -1,0 +1,126 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
+```{r eval=FALSE}
+devtools::install_github(c('rstudio/rmarkdown', 'yihui/tinytex'))
+tinytex::install_tinytex()
+```
+
+---
+title: "GLM Model"
+author: "Group 6"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#Model used: GLM
+Generalized linear model (GLM) is a flexible generalization of ordinary linear regression. The GLM generalizes linear regression by allowing the linear model to be related to the response variable via a link function and by allowing the magnitude of the variance of each measurement to be a function of its predicted value.
+
+
+```{r}
+data <- read.csv(file = "../data/curated/property_final.csv",header = TRUE)
+data$cloest.school<-factor(data$cloest.school)
+data$type <- factor(data$type)
+data$cloest.station <- factor(data$cloest.station)
+str(data)
+```
+```{r}
+# pair plot for numerical features
+library(GGally)
+SaveDR <- c("../plots/")                         
+png(filename = paste0(SaveDR,"pairplot",".png") ,     
+    width = 800, height = 700)
+ggpairs(data, columns=c(4,6,7,10,11,12,13,16,17,18,19))+ggtitle("pairplot")+theme_bw()
+
+```
+
+# Assumption:
+1.Linear relationship:According to the pair plot above, it can be seen that there is a potential linear relationship between cost and other features.
+2.Independence:No clear pattern can be seen in Scatter plot between different features, and all these data tend to be approximately independent.
+3. Normality: Cost itself is in accordance with normal distribution, and 'cost vs cost' can be seen in the figure above 
+
+```{r}
+m1 <- glm(
+cost ~ type+station_distance+CBD_distance+beds+bath+parking+suburb_population+density+offence_count_scaled+X2022_income,
+data=data,
+family = gaussian(link = "identity")
+) 
+summary(m1)
+```
+
+
+```{r}
+library("DALEX")
+library("ingredients")
+
+explain_titanic_glm <- explain(m1,data=data[,-c(1,3,5,8,9,10,14,15)],y = data[,10])
+
+```
+
+```{r}
+SaveDR <- c("../plots/")                         
+png(filename = paste0(SaveDR,"feature_importance",".png") ,    
+    width = 800, height = 700)
+fig<- feature_importance(explain_titanic_glm, B = 1)
+
+plot(fig)
+dev.off() 
+```
+
+```{r}
+library(glmnet)
+m2 <- glmnet(data[,-c(1,2,3,5,8,9,10,22,12,13,14,15)], y = data[,10],alpha = 1, family = 'gaussian')
+summary(m2)
+```
+
+# regularization
+In the glmnet package, Lasso or Ridge is considered for the regression model of multi-dimensional features. However, the parameter β of ridge will not be equal to 0, but the parameter β of Lasso can be equal to 0, so Lasso is chosen.
+
+```{r}
+x <- as.matrix(data[,-c(1,2,3,5,8,9,10,14,15)])
+y <- as.matrix(data[,10])
+f1 = glmnet(x, y, family="gaussian", nlambda=20, alpha=1)
+print(f1)
+plot(f1, xvar="lambda", label=TRUE)
+```
+# N-fold Cross Validation is a built-in function of GlMNet
+The Y-axis is the MSE (minimum error squared), and the corresponding X-axis superscript of the MSE minimum is the number of eigenvalues selected by Lasso.
+```{r}
+cvfit=cv.glmnet(x,y,family = 'gaussian')
+plot(cvfit)
+```
+
+
+```{r}
+cvfit$lambda.min
+cvfit$lambda.1se
+```
+
+```{r}
+l.coef2<-coef(cvfit$glmnet.fit,s=0.245865,exact = F)
+l.coef1<-coef(cvfit$glmnet.fit,s=28.2685,exact = F)
+l.coef1
+l.coef2
+```
+
+```{r}
+m1 <- glm(
+cost ~ beds+bath+density+X2022_income,
+data=data,
+family = gaussian(link = "identity")
+) 
+summary(m1)
+```
+
+
+
+
+
+
+
