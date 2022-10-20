@@ -1,5 +1,20 @@
 # Generic Real Estate Consulting Project
-Groups should generate their own suitable `README.md`.
+Grounp members
+
+Jiayi Zhao,      1067884
+
+Xueke Zheng, 1135290
+
+Yuchen Cao,   1174014
+
+Yuwen Hu,      1173984
+
+Yilong Wang,  1174206
+
+#### Plaase download following datasets manully before proceed
+  * Train station from https://datashare.maps.vic.gov.au/search?q=Victorian%20Railway%20Stations unzip and rename dir to data/raw/train_station
+  * Hospital data from https://www.healthcollect.vic.gov.au/HospitalLists/MainHospitalList.aspx indo dir data/raw/
+
 #### Document description and project instruction is in the [summary_notebook.ipynb](./notebook/summary_note_book.ipynb).
 
 
